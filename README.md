@@ -25,6 +25,8 @@ Variables in the dataset:
 
 This dataset is formatted as a CSV file with a total size of 1.11 GB, suitable for large-scale natural language processing and machine learning applications.
 
+![Dataset Image](Images/Dataset.png)
+
 Questions for You
 
 - Would you prefer a specific model architecture, such as transformer-based models, for initial implementation?
