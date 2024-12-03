@@ -26,7 +26,7 @@ Variables in the dataset:
 
 This dataset is formatted as a CSV file with a total size of 65.46 MB, suitable for large-scale natural language processing and machine learning applications.
 
-![Dataset Image](Images/dataset.png)
+![Dataset Image](Images/data.png)
 
 ## Datasheet
 
