@@ -150,7 +150,7 @@ We decided to try out four different models, Naive Bayes, Logistic Regression, a
 ### Naive Bayes
 We used TF-IDF vectors as input features for the Naive Bayes model, because it is better suited for discrete and sparse representations. While Word2Vec embeddings can technically be used, they produce dense, continuous vectors that do not align well with the Naive Bayes assumption of feature independence. TF-IDF, with its interpretable and probabilistic nature, ensures better compatibility and performance for this model.
 
-First, we transform the normalized_text column into a sparse matrix of TF-IDF features using TfidfVectorizer, limiting the number of features to 5000 for manageability. The data is then split into training and test sets, with the undersampling step applied to balance the classes. We train a MultinomialNB model on the balanced training data, fit it to the training set, and evaluate its performance on the test set.
+First, we transformed the normalized_text column into a sparse matrix of TF-IDF features using TfidfVectorizer, limiting the number of features to 5000 for manageability. The data is then split into training and test sets, with the undersampling step applied to balance the classes. We train a MultinomialNB model on the balanced training data, fit it to the training set, and evaluate its performance on the test set.
 
 ```{python}
 tfidf = TfidfVectorizer(max_features=5000)
@@ -441,4 +441,4 @@ However, its wise to stay cautious because the model is biased towards formal te
 
 # Going Further
 
-Some recommendations for moving forward would be to incorporate more diverse datasets with casual and technical styles. We could also explore additional features such as syntactic complexity or semantic coherence.Or even take things one step further and experiment with ensemble methods combining transformers with traditional ML models.
+Some recommendations for moving forward would be to incorporate more diverse datasets with casual and technical styles. We could also explore additional features such as syntactic complexity or semantic coherence. Or even take things one step further and experiment with ensemble methods combining transformers with traditional ML models.
