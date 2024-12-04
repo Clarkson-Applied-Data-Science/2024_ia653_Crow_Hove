@@ -153,10 +153,11 @@ We used TF-IDF vectors as input features for the Naive Bayes model, because it i
 First, we transformed the `normalized_text` column into a sparse matrix of TF-IDF features using `TfidfVectorizer`, limiting the number of features to 5000 for manageability. The data is then split into training and test sets, with the undersampling step applied to balance the classes. We train a `MultinomialNB` model on the balanced training data, fit it to the training set, and evaluate its performance on the test set.
 
 ```{python}
-tfidf = TfidfVectorizer(max_features=5000)
-X_tfidf = tfidf.fit_transform(data['normalized_text'])
+X_train, X_test, y_train, y_test = train_test_split(data['normalized_text'], y, test_size=0.2, random_state=42)
 
-X_train_tfidf, X_test_tfidf, y_train, y_test = train_test_split(X_tfidf, y, test_size=0.2, random_state=42)
+tfidf = TfidfVectorizer(max_features=5000)
+X_train_tfidf = tfidf.fit_transform(X_train)
+X_test_tfidf = tfidf.transform(X_test)
 
 undersampler = RandomUnderSampler(random_state=42)
 X_train_balanced, y_train_balanced = undersampler.fit_resample(X_train_tfidf, y_train)
