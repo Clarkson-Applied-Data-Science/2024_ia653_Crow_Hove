@@ -21,8 +21,8 @@ This label distribution shows that about **40%** of the entries are AI-generated
 
 Variables in the dataset:
 
-- text: Each row contains an essay or text entry, totaling **27,340 unique entries.**
-- generated: A binary label where **"1" signifies AI-generated text, and "0" represents human-written text.**
+- `text`: Each row contains an essay or text entry, totaling **27,340 unique entries.**
+- `generated`: A binary label where **"1" signifies AI-generated text, and "0" represents human-written text.**
 
 This dataset is formatted as a CSV file with a total size of 65.46 MB, suitable for large-scale natural language processing and machine learning applications.
 
@@ -103,7 +103,7 @@ The next thing we wanted to see were the different bigrams and trigrams between 
 Most of the n-grams overlap between the two text types, but AI-generated text tends to use slightly more formal language. These also let me make the assumption that most of these essays are about the American government in some capacity, since most of the top n-grams have to do with voting or some other issues currently being discussed in a political setting.
 
 ### Embeddings
-After tokenizing the text, we generated word embeddings using Word2Vec and identified the Top 10 words most similar to __*ai*__ and __*human*__. 
+After tokenizing the text, we generated word embeddings using `Word2Vec` and identified the Top 10 words most similar to __*ai*__ and __*human*__. 
 
 #### Top 10 Similar to "ai"
 | Keyword        | Score      |
@@ -141,16 +141,16 @@ We then wanted to visualize these embeddings so we decided to use Principal Comp
 
 ![PCA](Images/pca.png)
 
-We generated document-level vector representations by averaging Word2Vec embeddings for the tokens in each document. This approach captures the semantic meaning of the text, creating a feature matrix where each row represents a document as a vector in embedding space. These vectors were then used as input features for some of our training and evaluation models for our classification task.
+We generated document-level vector representations by averaging `Word2Vec` embeddings for the tokens in each document. This approach captures the semantic meaning of the text, creating a feature matrix where each row represents a document as a vector in embedding space. These vectors were then used as input features for some of our training and evaluation models for our classification task.
 
 # Model Selection & Fitting
 
 We decided to try out four different models, Naive Bayes, Logistic Regression, a Basic Neural Network, and an LSTM model. Since our dataset was slightly imbalanced, we decided to undersample the majority class (human generated). This balancing of the dataset occured for each model after the train-test split was created in order to ensure the test data was left untouched, so as to not create any bias.
 
 ### Naive Bayes
-We used TF-IDF vectors as input features for the Naive Bayes model, because it is better suited for discrete and sparse representations. While Word2Vec embeddings can technically be used, they produce dense, continuous vectors that do not align well with the Naive Bayes assumption of feature independence. TF-IDF, with its interpretable and probabilistic nature, ensures better compatibility and performance for this model.
+We used TF-IDF vectors as input features for the Naive Bayes model, because it is better suited for discrete and sparse representations. While `Word2Vec` embeddings can technically be used, they produce dense, continuous vectors that do not align well with the Naive Bayes assumption of feature independence. TF-IDF, with its interpretable and probabilistic nature, ensures better compatibility and performance for this model.
 
-First, we transformed the normalized_text column into a sparse matrix of TF-IDF features using TfidfVectorizer, limiting the number of features to 5000 for manageability. The data is then split into training and test sets, with the undersampling step applied to balance the classes. We train a MultinomialNB model on the balanced training data, fit it to the training set, and evaluate its performance on the test set.
+First, we transformed the `normalized_text` column into a sparse matrix of TF-IDF features using `TfidfVectorizer`, limiting the number of features to 5000 for manageability. The data is then split into training and test sets, with the undersampling step applied to balance the classes. We train a `MultinomialNB` model on the balanced training data, fit it to the training set, and evaluate its performance on the test set.
 
 ```{python}
 tfidf = TfidfVectorizer(max_features=5000)
@@ -166,7 +166,7 @@ nb_model.fit(X_train_balanced, y_train_balanced)
 ```
 
 ### Logistic Regression
-Our Logistic Regression model uses document vectors generated from Word2Vec embeddings as input features. We first split the data into training and test sets and apply undersampling to balance the classes. The balanced training data is used to fit the logistic regression model, which is trained with a maximum of 500 iterations to ensure convergence. The model's performance is then evaluated on the test set.
+Our Logistic Regression model uses document vectors generated from `Word2Vec` embeddings as input features. We first split the data into training and test sets and apply undersampling to balance the classes. The balanced training data is used to fit the logistic regression model, which is trained with a maximum of 500 iterations to ensure convergence. The model's performance is then evaluated on the test set.
 
 ```{python}
 X_train_docvec, X_test_docvec, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -180,7 +180,7 @@ lr_model.fit(X_train_balanced, y_train_balanced)
 
 ### Basic Neural Network
 
-Our Basic Neural Network model utilizes document vectors generated from the Word2Vec embeddings as input features. We start by splitting the data into training and test sets and apply undersampling to balance the classes. 
+Our Basic Neural Network model utilizes document vectors generated from the `Word2Vec` embeddings as input features. We start by splitting the data into training and test sets and apply undersampling to balance the classes. 
 The neural network architecture consists of an input layer, two hidden layers with ReLU activation functions and dropout layers for regularization, and an output layer with a sigmoid activation for binary classification. The model is compiled with the Adam optimizer and binary cross-entropy loss, and trained using early stopping to avoid overfitting. The performance of the model is evaluated on the test set.
 
 ```{python}
@@ -258,7 +258,7 @@ history_lstm = model_lstm.fit(
 ```
 
 # Validation/Metrics
-All four models were evaluated using the sklearn.metrics classification_report and confusion_matrix. 
+All four models were evaluated using the `sklearn.metrics` `classification_report` and `confusion_matrix`. 
 
 ### Naive Bayes
 Classification Report:
@@ -280,7 +280,7 @@ The Naive Bayes model performs well, achieving a high overall accuracy of 97%. P
 Classification Report:
 | Class | Precision | Recall | F1-Score | Support |
 |-------|-----------|--------|----------|---------|
-| 0     | 0.98      | 0.98   | 0.98     | 3539    |
+| 0     | 0.98      | 0.97   | 0.98     | 3539    |
 | 1     | 0.97      | 0.97   | 0.97     | 2290    |
 | Accuracy |        |        | 0.97     | 5829    |
 | Macro Avg| 0.97   | 0.97   | 0.97     | 5829    |
@@ -330,19 +330,77 @@ In order to visualize these metrics to better compare the models, we created two
 ![NB+LR](Images/nb_lr_comparison.png)
 ![Basic+LSTM](Images/basic_lstm_comparison.png)
 
- All models achieve nearly identical scores, with marginal differences that are unlikely to be statistically significant. This consistent performance indicates that the dataset is relatively straightforward, allowing even simpler models like Naive Bayes to perform as effectively as more complex approaches like Basic Neural Networks and LSTMs.
+All models achieve nearly identical scores, with marginal differences that are unlikely to be statistically significant. This consistent performance indicates that the dataset is relatively straightforward, allowing even simpler models like Naive Bayes to perform as effectively as more complex approaches like Basic Neural Networks and LSTMs.
 
 The results suggest that the dataset does not contain patterns that require the deeper representational power of neural networks. While the Basic NN and LSTM may offer advantages for more complex datasets or tasks, their additional complexity does not translate to significant performance gains here. Therefore, choosing between these models could depend on other factors, such as interpretability, computational resources, or deployment constraints, rather than differences in classification performance.
 
 ## Sample Predictions
 ### Samples From the Data
-We randomly selected four different samples from the data, and did the appropriate preprocessing for each model before having the models predict the label for each sample. The results are as follows:
+We randomly selected four different samples from the data, and did the appropriate preprocessing for each model before having the models predict the label for each sample. The functions we created to accomplish this is below:
+
+```{python}
+def preprocess_samples(model_type, samples, tokenizer=None, max_length=128, tfidf_vectorizer=None):
+    if model_type == "lstm":
+        samples = [' '.join(map(str, sample)) for sample in samples]
+        sequences = tokenizer.texts_to_sequences(samples)
+        return pad_sequences(sequences, maxlen=max_length, padding='post', truncating='post')
+    elif model_type == "basic_nn":
+        return samples
+    elif model_type == "logistic":
+        return samples
+    elif model_type == "naive":
+        return samples
+    else:
+        raise ValueError("Unsupported model type. Use 'lstm', 'basic_nn', 'logistic', or 'naive'.")
+
+def test_random_samples(model, X_test, y_test, model_type="basic_nn", tokenizer=None, max_length=128, tfidf_vectorizer=None):
+    print("-"*50)
+    print(f"Samples For {model_type}:")
+    num_samples = 4
+    random_indices = np.random.choice(X_test.shape[0], num_samples, replace=False)
+
+    if model_type == "basic_nn":
+        X_random_samples = np.stack(data['doc_vector'].values)[random_indices]
+    else:
+        X_random_samples = X_test[random_indices]
+
+    y_random_true = y_test[random_indices]
+
+    if model_type == "lstm":
+        X_random_samples = preprocess_samples(model_type, X_random_samples, tokenizer=tokenizer, max_length=max_length)
+    elif model_type == "logistic" or model_type == "naive":
+        pass
+
+    if hasattr(X_random_samples, 'toarray'):
+        X_random_samples = X_random_samples.toarray()
+
+    y_pred = model.predict(X_random_samples)
+
+    if model_type == "lstm" or model_type == "basic_nn":
+        if y_pred.shape[-1] == 1:
+            y_pred = (y_pred > 0.5).astype("int32")
+        else:
+            y_pred = np.argmax(y_pred, axis=1)
+    else:
+        y_pred = np.round(y_pred).astype("int32")
+
+    for i in range(num_samples):
+        print(f"Sample {i + 1}")
+        print("True Label:", "Human" if y_random_true[i] == 0 else "AI")
+        print("Predicted Label:", "Human" if y_pred[i] == 0 else "AI")
+        print("-" * 30)
+```
+
+The function `preprocessing_samples` chooses the correct preprocessing necessary based on the model type that is given as an argument into the function. Then the `test_random_samples` function takes the data, selects four random samples along with finding its actual label. Since the function randomly selects new samples each time its ran, I cannot provide the actual text of the samples. Then it runs the samples through the selected model and produces the Predicted label.
+
+The results are as follows:
+
 #### Samples For Naive Bayes
 
 | Sample | True Label | Predicted Label |
 |--------|------------|------------------|
 | 1      | Human      | Human            |
-| 2      | Human      | Human            |
+| 2      | AI         | AI               |
 | 3      | Human      | Human            |
 | 4      | Human      | Human            |
 
@@ -353,28 +411,28 @@ The Naive Bayes model correctly predicted all the labels for the randomly select
 | Sample | True Label | Predicted Label |
 |--------|------------|------------------|
 | 1      | AI         | AI               |
-| 2      | AI         | AI               |
-| 3      | Human      | Human            |
-| 4      | AI         | AI               |
+| 2      | Human      | Human            |
+| 3      | AI         | AI               |
+| 4      | Human      | Human            |
 
-Logistic Regression successfully predicted three out of four samples. While it demonstrates solid performance, its misclassification may stem from the model’s limitation in handling non-linear relationships or samples that lie near the decision boundary.
+The Logistic Regression model correctly predicted all the labels for the randomly selected samples. This demonstrates the model's strength in identifying linear decision boundaries between the "AI" and "Human" classes in the dataset. However, while these results are promising, its performance on the entire dataset would still depend on how well it handles edge cases and more complex patterns not represented in this sample.
 
 #### Samples For Basic NN
 
 | Sample | True Label | Predicted Label |
 |--------|------------|------------------|
 | 1      | Human      | Human            |
-| 2      | AI         | Human            |
-| 3      | AI         | Human            |
+| 2      | Human      | Human            |
+| 3      | Human      | Human            |
 | 4      | AI         | Human            |
 
-The Basic Neural Network struggled with this set of samples, misclassifying three out of four and favoring "Human" predictions for multiple "AI" samples. This behavior may indicate overfitting to spurious patterns in the training data, or it could reflect a bias toward the "Human" class if the training data was imbalanced.
+The Basic Neural Network struggled with this set of samples, misclassifying one out of four and favoring "Human" predictions for multiple "AI" samples. This behavior may indicate overfitting to spurious patterns in the training data, or it could reflect a bias toward the "Human" class if the training data was imbalanced.
 
 #### Samples For LSTM
 
 | Sample | True Label | Predicted Label |
 |--------|------------|------------------|
-| 1      | Human      | Human            |
+| 1      | AI         | Human            |
 | 2      | Human      | Human            |
 | 3      | AI         | Human            |
 | 4      | Human      | Human            |
@@ -382,10 +440,64 @@ The Basic Neural Network struggled with this set of samples, misclassifying thre
 The LSTM performed better than the Basic Neural Network, correctly predicting two out of four samples. However, it still favored "Human" predictions for some "AI" samples. This could be due to the LSTM over-prioritizing certain features during training or a lack of sufficient data for the model to fully leverage its sequential processing capabilities.
 
 ### Synthesized Samples
-Next, we created two samples, one written by a human and another generated by ChatGPT. The sample written by a human was an essay Isabelle had written freshman year of college. We ran these two samples through the appropriate preprocessing before using each model to predict their labels. The results are as follows:
+Next, we created two samples, one written by a human and another generated by ChatGPT. The sample written by a human was an essay Isabelle had written freshman year of college. We ran these two samples through the appropriate preprocessing using the same function as before, then using using a new function called `test_custom_samples_with_labels` to predict their labels with each model. 
+
+```{python}
+def test_custom_samples_with_labels(model, custom_samples, model_type="basic_nn", tokenizer=None, max_length=128, tfidf_vectorizer=None):
+    print("-" * 50)
+    print(f"Testing Custom Samples with {model_type.upper()} Model")
+
+    texts = [sample["text"] for sample in custom_samples]
+    true_labels = [sample.get("label", None) for sample in custom_samples]
+
+    if model_type == "lstm":
+        preprocessed_texts = preprocess_samples(model_type, texts, tokenizer=tokenizer, max_length=max_length)
+    elif model_type == "naive":
+        preprocessed_texts = tfidf_vectorizer.transform(texts)
+    elif model_type == "basic_nn":
+        preprocessed_texts = np.stack([document_vector(word_tokenize(text), word2vec_model) for text in texts])
+    elif model_type == "logistic":
+        preprocessed_texts = np.stack([document_vector(word_tokenize(text), word2vec_model) for text in texts])
+    else:
+        raise ValueError("Unsupported model type. Use 'lstm', 'basic_nn', 'logistic', or 'naive'.")
+
+    if hasattr(preprocessed_texts, 'toarray'):
+        preprocessed_texts = preprocessed_texts.toarray()
+
+    if preprocessed_texts.ndim == 1:
+        preprocessed_texts = preprocessed_texts.reshape(1, -1)
+
+    y_pred = model.predict(preprocessed_texts)
+
+    if model_type == "lstm" or model_type == "basic_nn":
+        if y_pred.shape[-1] == 1:
+            y_pred = (y_pred > 0.5).astype("int32").flatten()
+        else:
+            y_pred = np.argmax(y_pred, axis=1)
+    else:
+        y_pred = np.round(y_pred).astype("int32")
+
+    label_map = {0: "Human", 1: "AI"}
+    for i, sample in enumerate(custom_samples):
+        text = sample["text"]
+        true_label = sample.get("label", None)
+        predicted_label = label_map.get(y_pred[i], "Unknown")
+        print(f"Sample {i + 1}: {text}")
+        if true_label is not None:
+            print(f"True Label: {label_map.get(true_label, 'Unknown')}")
+        print(f"Predicted Label: {predicted_label}")
+        print("-" * 30)
+```
+
+The results are as follows:
+
+<table>
+<tr>
+<td style="vertical-align: top; width: 50%;">
+
 #### Samples For Naive Bayes
 
-| Sample | True Label | Predicted Label |
+| Sample | True Label | Predicted Label |       
 |--------|------------|------------------|
 | 1      | AI         | AI               |
 | 2      | Human      | Human            |
@@ -419,6 +531,24 @@ The Basic Neural Network successfully classified both samples, demonstrating bet
 
 The LSTM correctly identified the human-written sample but misclassified the AI-generated sample as "Human." This could indicate a bias in the model toward features more common in human-written samples, possibly due to a larger representation of human-written text in the training data or difficulty generalizing to out-of-distribution AI-generated samples.
 
+</td>
+<td style="vertical-align: top; width: 50%;">
+
+### Sample Excerpts
+
+#### Sample 1: AI-Generated (ChatGPT)
+> The Electoral College: A Deep Dive into Its Mechanisms, Controversies, and Future
+The Electoral College is one of the most talked-about, yet often misunderstood, elements of the American political system. It is a mechanism by which the United States elects its president, and its unique structure has been both praised and criticized over the years. The system’s origins, how it operates, and its implications for democracy and representation have made it a persistent topic of debate. This essay will explore the history of the Electoral College, its operational details, the arguments for and against it, and potential paths for reform.
+Historical Background
+The Electoral College was established in Article II, Section 1 of the U.S. Constitution, with the goal of creating a buffer between the general population and the selection of a president. The framers of the Constitution were concerned about direct democracy and feared that voters might be too swayed by popular sentiment or charisma over qualifications and governance expertise. The system was intended to be a compromise between electing the president by a vote of Congress and a direct popular election.
+
+#### Sample 2: Human-Written (Isabelle's Essay)
+> “And so, I think it best you follow me for your own good, and I shall be your guide and lead you out through an eternal place where you will hear desperate cries, and see tormented shades, some as old as Hell itself,” (Inferno 1.112-6). This quote was the beginning of one of the most profound journeys of the fourteenth century, that is still talked about today. This journey is known as The Divine Comedy, a trilogy of epic poems, written by Dante. This story was a favorite of many when it was first published during the middle ages because it actually had a happy ending, and it was a hot topic theologically because it was right at the beginning of the Renaissance period. Dante received a lot of recognition for his writing style in this particular piece of work. Not many people realized that one of his biggest influences was the Roman poet Virgil. In Dante’s Divine Comedy, we meet the same Virgil that Dante idolizes as Dante’s guide. Virgil takes Dante on a journey through Hell and Purgatory before handing him off to Beatrice to take him through Heaven.  As Dante’s guide, Virgil takes on the different roles of teacher, parent, and idol to help Dante make it through his journey.
+
+</td>
+</tr>
+</table>
+
 # Overfitting/Underfitting
 
 Originally, it was too hard to tell if over/underfitting was occurring on the basic neural network or the LSTM because not enough epochs were being ran. To fix this, we added early stopping with a patience of 5 and changed the total epochs to 50 for both models. The loss curves are below.
@@ -428,9 +558,9 @@ Originally, it was too hard to tell if over/underfitting was occurring on the ba
 
 ### Analysis
 
-**Basic Neural Network**: The training loss decreases steadily, and the validation loss initially fluctuates but eventually stabilizes and decreases, suggesting the model generalizes well to unseen data. This indicates a good balance between underfitting and overfitting.
+**Basic Neural Network**: The training loss decreases steadily, and the validation loss fluctuates and diverges from the training loss in later epochs. This behavior suggests the Neural Network may be overfitting the training data, despite the use of early stopping. Additional regularization, such as dropout or reducing model complexity, might help mitigate this issue.
 
-**LSTM Model**: The training loss decreases consistently, but the validation loss shows significant fluctuations and diverges from the training loss in later epochs. This behavior suggests the LSTM may be overfitting to the training data, despite the use of early stopping. Additional regularization, such as dropout or reducing model complexity, might help mitigate this issue.
+**LSTM Model**: The training loss decreases consistently, but the validation loss shows significant fluctuations and diverges from the training loss in later epochs. This behavior suggests the LSTM may be overfitting the training data, despite the use of early stopping. Additional regularization, such as dropout or reducing model complexity, might help mitigate this issue.
 
 The different behaviors highlight the importance of monitoring loss curves to diagnose overfitting or underfitting and make necessary adjustments to model architecture or training parameters.
 
